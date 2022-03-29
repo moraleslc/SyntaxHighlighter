@@ -1,0 +1,14 @@
+#define RESERVADOS 1
+#define OPERADORES 2
+#define ESPECIALES 3
+#define BOOLEANOS 4
+#define NUMEROS 5
+#define DEFAULT 6
+#define NEWLINE 7
+#define STRING 8
+#define COMENTARIOS 9
+#define OPERADORESLOG 10
+#define OPERADORESBIN 11
+#define PREFUNCTION 12
+#define DATATYPE 13
+#define PREPROCESSOR 14

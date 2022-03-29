@@ -1,0 +1,43 @@
+html {
+    background-color: black;
+    color: white;
+}
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+.reservados {
+    color: aqua;
+}
+.operadores {
+    color: royalblue;
+}
+.especiales {
+    color: fuchsia;
+}
+.booleanos {
+    color: darkorange;
+}
+.numeros {
+    color: mediumslateblue;
+}
+.string {
+    color: yellow;
+}
+.comentarios {
+    color: #4bc429;
+}
+.operadoreslog{
+    color:deepskyblue;
+}
+.operadoresbin{
+    color: steelblue;
+}
+.prefunction{
+    color: indigo;
+}
+.datatype{
+    color: hotpink;
+}
+.preprocessor{
+    color: crimson;
+}
