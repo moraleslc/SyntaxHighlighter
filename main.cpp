@@ -2,36 +2,62 @@
 #include <fstream>
 #include <chrono>
 #include "index.h"
+#include <dirent.h>
+#include <filesystem>
+#include <vector>
+#include <iostream>
+#include <thread>
+#include <string>
+namespace fs = std::filesystem;
 using namespace std;
 
-int main(int argc, const char** argv) {
+std::vector<std::vector<string>> SplitVector(const std::vector<string>& vec, size_t n)
+{
+    std::vector<std::vector<string>> outVec;
 
-    std::chrono::system_clock::time_point stop;
+    size_t length = vec.size() / n;
+    size_t remain = vec.size() % n;
+
+    size_t begin = 0;
+    size_t end = 0;
+
+    for (size_t i = 0; i < std::min(n, vec.size()); ++i)
+    {
+        end += (remain > 0) ? (length + !!(remain--)) : length;
+
+        outVec.push_back(std::vector<string>(vec.begin() + begin, vec.begin() + end));
+
+        begin = end;
+    }
+
+    return outVec;
+}
+
+int archivos(string nombrearch, int x){
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    --argc, ++argv;
-    if (argc>0)
-    {
-        ifstream* archivo= new ifstream(argv[0]);    
+        ifstream* archivo= new ifstream(nombrearch);    
         yyFlexLexer* lex= new yyFlexLexer(archivo);
+
+        string filesname = "./pruebashtml/salida" + std::to_string(x) + ".html";
     
-        ofstream archivosalida("salida.html");
+        ofstream archivosalida(filesname);
         archivosalida<<"<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <link rel=\"stylesheet\" href=\"style.css\">\n    <meta charset=\"UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Document</title>\n</head>\n<body>";
 
         while (1)
         {
             switch (lex->yylex())
             {
-            case 0:
+            case 0:{
                 archivosalida<<"</body>\n</html>";
 
-                stop = std::chrono::high_resolution_clock::now();
+                auto stop = std::chrono::high_resolution_clock::now();
 
                 std::cout << "Tiempo total: " << std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count()<< " microsegundos." << std::endl;
 
                 return 0;
-            
+            }
             case RESERVADOS:
                 archivosalida<<"<span class=\"reservados\">"<<lex->YYText()<<"</span>";
                 break;
@@ -90,9 +116,47 @@ int main(int argc, const char** argv) {
                 break;
             }
         }
+}
 
-
-        
+void procesarlista(vector <string> lista){
+    for (size_t i = 0; i < lista.size(); i++)
+    {
+        archivos(lista[i], i);
     }
+        
+}
+
+int main(int argc, const char** argv) {
+
+    auto start = std::chrono::high_resolution_clock::now();
+
+    int numthreads=1;
+
+    std::string path = "./pruebas";
+    vector<string> vect;
+    for (const auto & entry : fs::recursive_directory_iterator(path)){
+        if (!fs::is_directory(entry)){
+            // std::cout << entry.path().string() << std::endl;
+
+            vect.push_back(entry.path());
+        }
+    }
+
+    auto prueba=SplitVector(vect, numthreads);    
+    vector <thread> thrds;
+
+    for (auto x: prueba){
+        thrds.push_back(thread(procesarlista, x));
+    }
+
+    for (size_t i = 0; i < thrds.size(); i++)
+    {
+        thrds[i].join();
+    }
+    auto stop = std::chrono::high_resolution_clock::now();
+
+    std::cout << "Tiempo total de ejecución: " << std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count()<< " milisegundos." << std::endl;
+
+    return (0);
     
 }
